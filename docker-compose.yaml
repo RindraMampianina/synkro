@@ -6,7 +6,7 @@ services:
     volumes:
       - ./symfony:/var/www/html
     environment:
-      DATABASE_URL: postgresql://app:app@postgres:5432/project_manager
+      DATABASE_URL: postgresql://app:app@postgres:5432/synkro
       MESSENGER_TRANSPORT_DSN: amqp://guest:guest@rabbitmq:5672/%2f/messages
       MERCURE_URL: http://mercure:3000/.well-known/mercure
       MERCURE_PUBLIC_URL: http://localhost:3000/.well-known/mercure
@@ -28,7 +28,7 @@ services:
   postgres:
     image: postgres:16-alpine
     environment:
-      POSTGRES_DB: project_manager
+      POSTGRES_DB: synkro
       POSTGRES_USER: app
       POSTGRES_PASSWORD: app
     ports:
