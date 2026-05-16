@@ -1,0 +1,59 @@
+services:
+  php:
+    build:
+      context: .
+      dockerfile: docker/php/Dockerfile
+    volumes:
+      - ./symfony:/var/www/html
+    environment:
+      DATABASE_URL: postgresql://app:app@postgres:5432/project_manager
+      MESSENGER_TRANSPORT_DSN: amqp://guest:guest@rabbitmq:5672/%2f/messages
+      MERCURE_URL: http://mercure:3000/.well-known/mercure
+      MERCURE_PUBLIC_URL: http://localhost:3000/.well-known/mercure
+      MERCURE_JWT_SECRET: your_secret_key
+    depends_on:
+      - postgres
+      - rabbitmq
+
+  nginx:
+    image: nginx:alpine
+    ports:
+      - "8080:80"
+    volumes:
+      - ./symfony:/var/www/html
+      - ./docker/nginx/default.conf:/etc/nginx/conf.d/default.conf
+    depends_on:
+      - php
+
+  postgres:
+    image: postgres:16-alpine
+    environment:
+      POSTGRES_DB: project_manager
+      POSTGRES_USER: app
+      POSTGRES_PASSWORD: app
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+
+  rabbitmq:
+    image: rabbitmq:3-management-alpine
+    ports:
+      - "5672:5672"
+      - "15672:15672"   # Dashboard web
+    environment:
+      RABBITMQ_DEFAULT_USER: guest
+      RABBITMQ_DEFAULT_PASS: guest
+
+  mercure:
+    image: dunglas/mercure
+    ports:
+      - "3000:3000"
+    environment:
+      SERVER_NAME: ':3000'
+      MERCURE_PUBLISHER_JWT_KEY: your_secret_key
+      MERCURE_SUBSCRIBER_JWT_KEY: your_secret_key
+    command: /usr/bin/caddy run --config /etc/caddy/Caddyfile --adapter caddyfile
+
+volumes:
+  postgres_data:

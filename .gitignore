@@ -1,0 +1,13 @@
+# Docker
+.env.local
+
+# Symfony
+symfony/.env.local
+symfony/var/
+symfony/vendor/
+symfony/config/jwt/
+symfony/.env.local
+
+# OS
+.DS_Store
+Thumbs.db
