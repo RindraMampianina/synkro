@@ -10,7 +10,7 @@ services:
       MESSENGER_TRANSPORT_DSN: amqp://guest:guest@rabbitmq:5672/%2f/messages
       MERCURE_URL: http://mercure:3000/.well-known/mercure
       MERCURE_PUBLIC_URL: http://localhost:3000/.well-known/mercure
-      MERCURE_JWT_SECRET: your_secret_key
+      MERCURE_JWT_SECRET: 2e2ee9285741aba2cb55477b7e32519ae58328aa2e086b43657db346d83e0fb8
     depends_on:
       - postgres
       - rabbitmq
@@ -51,8 +51,8 @@ services:
       - "3000:3000"
     environment:
       SERVER_NAME: ':3000'
-      MERCURE_PUBLISHER_JWT_KEY: your_secret_key
-      MERCURE_SUBSCRIBER_JWT_KEY: your_secret_key
+      MERCURE_PUBLISHER_JWT_KEY: 2e2ee9285741aba2cb55477b7e32519ae58328aa2e086b43657db346d83e0fb8
+      MERCURE_SUBSCRIBER_JWT_KEY: 2e2ee9285741aba2cb55477b7e32519ae58328aa2e086b43657db346d83e0fb8
     command: /usr/bin/caddy run --config /etc/caddy/Caddyfile --adapter caddyfile
 
 volumes:

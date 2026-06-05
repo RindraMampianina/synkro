@@ -10,6 +10,7 @@ use App\Domain\Repository\ProjectRepositoryInterface;
 use App\Domain\Repository\TaskRepositoryInterface;
 use App\Domain\Repository\UserRepositoryInterface;
 use App\Domain\ValueObject\TaskPriority;
+use App\Infrastructure\Mercure\MercurePublisher;
 use Symfony\Component\Messenger\Attribute\AsMessageHandler;
 
 #[AsMessageHandler]
@@ -19,6 +20,7 @@ final class CreateTaskHandler
         private readonly TaskRepositoryInterface $taskRepository,
         private readonly ProjectRepositoryInterface $projectRepository,
         private readonly UserRepositoryInterface $userRepository,
+        private readonly MercurePublisher $mercurePublisher,
     ) {}
 
     public function __invoke(CreateTaskCommand $command): Task
@@ -46,7 +48,10 @@ final class CreateTaskHandler
         }
 
         $this->taskRepository->save($task);
-        
+
+        // Publie l'event temps réel après la sauvegarde
+        $this->mercurePublisher->publishTaskCreated($task);
+
         return $task;
     }
 }
