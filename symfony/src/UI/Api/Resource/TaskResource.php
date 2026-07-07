@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\UI\Api\Resource;
 
+use ApiPlatform\Metadata\ApiProperty;
 use ApiPlatform\Metadata\ApiResource;
 use ApiPlatform\Metadata\Get;
 use ApiPlatform\Metadata\GetCollection;
@@ -23,12 +24,15 @@ use Symfony\Component\Validator\Constraints as Assert;
         new Post(processor: CreateTaskProcessor::class),
         new Patch(
             uriTemplate: '/tasks/{id}/status',
+            uriVariables: ['id'],
+            provider: TaskProvider::class,
             processor: UpdateTaskStatusProcessor::class,
         ),
     ]
 )]
 final class TaskResource
 {
+    #[ApiProperty(identifier: true)]
     public ?string $id = null;
 
     #[Assert\NotBlank]
