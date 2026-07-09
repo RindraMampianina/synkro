@@ -9,6 +9,7 @@ use ApiPlatform\State\ProviderInterface;
 use App\Domain\Repository\ProjectRepositoryInterface;
 use App\Domain\Repository\TaskRepositoryInterface;
 use App\UI\Api\Resource\TaskResource;
+use Symfony\Component\HttpFoundation\Request;
 
 final class TaskCollectionProvider implements ProviderInterface
 {
@@ -20,6 +21,9 @@ final class TaskCollectionProvider implements ProviderInterface
     public function provide(Operation $operation, array $uriVariables = [], array $context = []): array
     {
         $projectId = $context['filters']['projectId'] ?? null;
+        if (!$projectId && isset($context['request']) && $context['request'] instanceof Request) {
+            $projectId = $context['request']->query->get('projectId');
+        }
 
         if ($projectId) {
             $project = $this->projectRepository->findById($projectId);
