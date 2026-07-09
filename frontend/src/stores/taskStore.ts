@@ -27,8 +27,12 @@ const useTaskStore = create<TaskState>((set) => ({
   fetchTasks: async (projectId) => {
     set({ loading: true });
     const response = await api.get(`/tasks?projectId=${projectId}`);
+    const data = response.data as any;
+    const items: Task[] = Array.isArray(data)
+      ? data
+      : (data?.member ?? data?.['hydra:member'] ?? []);
     set({
-      tasks: dedupeTasks(response.data['hydra:member'] ?? []),
+      tasks: dedupeTasks(items),
       loading: false,
     });
   },

@@ -22,8 +22,12 @@ const useProjectStore = create<ProjectState>()(
       fetchProjects: async () => {
         set({ loading: true });
         const response = await api.get('/projects');
+        const data = response.data as any;
+        const items: Project[] = Array.isArray(data)
+          ? data
+          : (data?.member ?? data?.['hydra:member'] ?? []);
         set({
-          projects: response.data['hydra:member'] ?? [],
+          projects: items,
           loading: false,
         });
       },
