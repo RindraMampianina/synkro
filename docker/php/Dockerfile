@@ -9,5 +9,6 @@ RUN docker-php-ext-install pdo pdo_pgsql opcache && \
     docker-php-ext-enable amqp redis
 
 COPY --from=composer:latest /usr/bin/composer /usr/bin/composer
+COPY docker/php/conf.d/opcache-dev.ini /usr/local/etc/php/conf.d/99-opcache-dev.ini
 
 WORKDIR /var/www/html
