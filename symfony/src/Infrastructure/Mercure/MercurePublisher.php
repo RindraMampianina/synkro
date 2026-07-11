@@ -4,8 +4,8 @@ declare(strict_types=1);
 
 namespace App\Infrastructure\Mercure;
 
-use App\Domain\Entity\Task;
 use App\Domain\Entity\Project;
+use App\Domain\Entity\Task;
 use Symfony\Component\Mercure\HubInterface;
 use Symfony\Component\Mercure\Update;
 
@@ -18,8 +18,6 @@ final class MercurePublisher
     public function publishTaskCreated(Task $task): void
     {
         $this->hub->publish(new Update(
-            // Topic — les clients abonnés à ce topic recevront l'update
-            // Chaque projet a son propre topic
             topics: [
                 sprintf('https://synkro.app/projects/%s/tasks', $task->getProject()->getId()),
             ],
@@ -34,7 +32,7 @@ final class MercurePublisher
                     'assigneeId' => $task->getAssignee()?->getId(),
                     'createdAt' => $task->getCreatedAt()->format(\DateTimeInterface::ATOM),
                 ],
-            ]),
+            ], JSON_THROW_ON_ERROR),
         ));
     }
 
@@ -54,7 +52,20 @@ final class MercurePublisher
                     'assigneeId' => $task->getAssignee()?->getId(),
                     'updatedAt' => $task->getUpdatedAt()?->format(\DateTimeInterface::ATOM),
                 ],
-            ]),
+            ], JSON_THROW_ON_ERROR),
+        ));
+    }
+
+    public function publishProjectCreated(Project $project): void
+    {
+        $this->hub->publish(new Update(
+            topics: [
+                $this->userProjectsTopic($project),
+            ],
+            data: json_encode([
+                'type' => 'project.created',
+                'payload' => $this->projectPayload($project),
+            ], JSON_THROW_ON_ERROR),
         ));
     }
 
@@ -62,16 +73,41 @@ final class MercurePublisher
     {
         $this->hub->publish(new Update(
             topics: [
+                $this->userProjectsTopic($project),
                 sprintf('https://synkro.app/projects/%s', $project->getId()),
             ],
             data: json_encode([
                 'type' => 'project.updated',
-                'payload' => [
-                    'id' => $project->getId(),
-                    'name' => $project->getName(),
-                    'updatedAt' => $project->getUpdatedAt()?->format(\DateTimeInterface::ATOM),
-                ],
-            ]),
+                'payload' => array_merge(
+                    $this->projectPayload($project),
+                    [
+                        'updatedAt' => $project->getUpdatedAt()?->format(\DateTimeInterface::ATOM),
+                    ]
+                ),
+            ], JSON_THROW_ON_ERROR),
         ));
+    }
+
+    private function userProjectsTopic(Project $project): string
+    {
+        return sprintf(
+            'https://synkro.app/users/%s/projects',
+            $project->getOwner()->getEmail()
+        );
+    }
+
+    /** @return array<string, mixed> */
+    private function projectPayload(Project $project): array
+    {
+        return [
+            'id' => $project->getId(),
+            'name' => $project->getName(),
+            'description' => $project->getDescription(),
+            'ownerId' => $project->getOwner()->getId(),
+            'members' => $project->getMembers()->map(
+                static fn ($member) => $member->getId()
+            )->getValues(),
+            'createdAt' => $project->getCreatedAt()->format(\DateTimeInterface::ATOM),
+        ];
     }
 }

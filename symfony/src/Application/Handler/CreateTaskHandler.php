@@ -49,7 +49,6 @@ final class CreateTaskHandler
 
         $this->taskRepository->save($task);
 
-        // Publie l'event temps réel après la sauvegarde
         $this->mercurePublisher->publishTaskCreated($task);
 
         return $task;

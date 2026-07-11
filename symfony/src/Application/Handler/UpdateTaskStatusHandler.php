@@ -29,7 +29,6 @@ final class UpdateTaskStatusHandler
         $task->transitionTo(TaskStatus::from($command->newStatus));
         $this->taskRepository->save($task);
 
-        // Notifie tous les clients connectés au projet
         $this->mercurePublisher->publishTaskUpdated($task);
     }
 }

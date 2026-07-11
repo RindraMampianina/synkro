@@ -8,6 +8,7 @@ use App\Application\Command\CreateProjectCommand;
 use App\Domain\Entity\Project;
 use App\Domain\Repository\ProjectRepositoryInterface;
 use App\Domain\Repository\UserRepositoryInterface;
+use App\Infrastructure\Mercure\MercurePublisher;
 use Symfony\Component\Messenger\Attribute\AsMessageHandler;
 
 #[AsMessageHandler]
@@ -16,6 +17,7 @@ final class CreateProjectHandler
     public function __construct(
         private readonly ProjectRepositoryInterface $projectRepository,
         private readonly UserRepositoryInterface $userRepository,
+        private readonly MercurePublisher $mercurePublisher,
     ) {}
 
     public function __invoke(CreateProjectCommand $command): Project
@@ -29,6 +31,8 @@ final class CreateProjectHandler
         $project = new Project($command->name, $owner, $command->description);
 
         $this->projectRepository->save($project);
+
+        $this->mercurePublisher->publishProjectCreated($project);
 
         return $project;
     }
