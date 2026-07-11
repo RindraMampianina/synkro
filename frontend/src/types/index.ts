@@ -33,7 +33,7 @@ export interface AuthResponse {
 }
 
 export interface MercureEvent {
-  type: 'task.created' | 'task.updated' | 'project.updated';
+  type: 'task.created' | 'task.updated' | 'project.created' | 'project.updated';
   payload: Partial<Task> & Partial<Project>;
 }
 

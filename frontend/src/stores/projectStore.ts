@@ -8,9 +8,19 @@ interface ProjectState {
   currentProject: Project | null;
   loading: boolean;
   fetchProjects: () => Promise<void>;
-  createProject: (name: string, ownerId: string, description?: string) => Promise<Project>;
+  createProject: (name: string, description?: string) => Promise<Project>;
   setCurrentProject: (project: Project) => void;
+  addProjectFromMercure: (project: Project) => void;
+  updateProjectFromMercure: (project: Partial<Project> & { id: string }) => void;
 }
+
+const dedupeProjects = (projects: Project[]) => {
+  const map = new Map<string, Project>();
+  projects.forEach((project) => {
+    map.set(project.id, project);
+  });
+  return Array.from(map.values());
+};
 
 const useProjectStore = create<ProjectState>()(
   persist(
@@ -27,23 +37,40 @@ const useProjectStore = create<ProjectState>()(
           ? data
           : (data?.member ?? data?.['hydra:member'] ?? []);
         set({
-          projects: items,
+          projects: dedupeProjects(items),
           loading: false,
         });
       },
 
-      createProject: async (name, ownerId, description) => {
-        const response = await api.post('/projects', { name, ownerId, description });
+      createProject: async (name, description) => {
+        const response = await api.post('/projects', { name, description });
         const project = response.data as Project;
-        set((state) => ({ projects: [...state.projects, project] }));
+        set((state) => ({ projects: dedupeProjects([...state.projects, project]) }));
         return project;
       },
 
       setCurrentProject: (project) => set({ currentProject: project }),
+
+      addProjectFromMercure: (project) => {
+        set((state) => ({
+          projects: dedupeProjects([...state.projects, project]),
+        }));
+      },
+
+      updateProjectFromMercure: (project) => {
+        set((state) => ({
+          projects: state.projects.map((p) =>
+            p.id === project.id ? { ...p, ...project } : p
+          ),
+          currentProject:
+            state.currentProject?.id === project.id
+              ? { ...state.currentProject, ...project }
+              : state.currentProject,
+        }));
+      },
     }),
     {
       name: 'synkro-project-storage',
-      // Persiste uniquement le projet courant
       partialize: (state) => ({ currentProject: state.currentProject }),
     }
   )
