@@ -7,12 +7,14 @@ namespace App\UI\Api\Provider;
 use ApiPlatform\Metadata\Operation;
 use ApiPlatform\State\ProviderInterface;
 use App\Domain\Repository\ProjectRepositoryInterface;
+use App\Infrastructure\Security\ProjectAccessChecker;
 use App\UI\Api\Resource\ProjectResource;
 
 final class ProjectProvider implements ProviderInterface
 {
     public function __construct(
         private readonly ProjectRepositoryInterface $projectRepository,
+        private readonly ProjectAccessChecker $projectAccessChecker,
     ) {}
 
     public function provide(Operation $operation, array $uriVariables = [], array $context = []): ?ProjectResource
@@ -23,6 +25,8 @@ final class ProjectProvider implements ProviderInterface
             return null;
         }
 
+        $this->projectAccessChecker->assertCanAccess($project);
+
         $resource = new ProjectResource();
         $resource->id = $project->getId();
         $resource->name = $project->getName();
@@ -30,7 +34,7 @@ final class ProjectProvider implements ProviderInterface
         $resource->ownerId = $project->getOwner()->getId();
         $resource->createdAt = $project->getCreatedAt();
         $resource->members = array_map(
-            fn($member) => $member->getId(),
+            static fn ($member) => $member->getId(),
             $project->getMembers()->toArray()
         );
 

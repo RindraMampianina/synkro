@@ -49,6 +49,7 @@ class Project
         $this->createdAt = new \DateTimeImmutable();
         $this->members = new ArrayCollection();
         $this->tasks = new ArrayCollection();
+        $this->addMember($owner);
     }
 
     public function getId(): ?string { return $this->id; }
@@ -76,5 +77,21 @@ class Project
     public function removeMember(User $user): void
     {
         $this->members->removeElement($user);
+    }
+
+    public function isAccessibleBy(User $user): bool
+    {
+        if ($this->owner === $user) {
+            return true;
+        }
+
+        if ($this->owner->getId() !== null && $this->owner->getId() === $user->getId()) {
+            return true;
+        }
+
+        return $this->members->exists(
+            static fn (int|string $key, User $member): bool =>
+                $member === $user || ($member->getId() !== null && $member->getId() === $user->getId())
+        );
     }
 }

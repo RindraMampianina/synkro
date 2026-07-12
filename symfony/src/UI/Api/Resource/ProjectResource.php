@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\UI\Api\Resource;
 
+use ApiPlatform\Metadata\ApiProperty;
 use ApiPlatform\Metadata\ApiResource;
 use ApiPlatform\Metadata\Get;
 use ApiPlatform\Metadata\GetCollection;
@@ -29,7 +30,13 @@ final class ProjectResource
     public string $name = '';
 
     public ?string $description = null;
+
+    #[ApiProperty(writable: false)]
     public ?string $ownerId = null;
+
+    #[ApiProperty(writable: false)]
     public ?array $members = [];
+
+    #[ApiProperty(writable: false)]
     public ?\DateTimeImmutable $createdAt = null;
 }

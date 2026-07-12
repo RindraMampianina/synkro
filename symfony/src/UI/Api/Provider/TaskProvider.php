@@ -7,12 +7,14 @@ namespace App\UI\Api\Provider;
 use ApiPlatform\Metadata\Operation;
 use ApiPlatform\State\ProviderInterface;
 use App\Domain\Repository\TaskRepositoryInterface;
+use App\Infrastructure\Security\ProjectAccessChecker;
 use App\UI\Api\Resource\TaskResource;
 
 final class TaskProvider implements ProviderInterface
 {
     public function __construct(
         private readonly TaskRepositoryInterface $taskRepository,
+        private readonly ProjectAccessChecker $projectAccessChecker,
     ) {}
 
     public function provide(Operation $operation, array $uriVariables = [], array $context = []): ?TaskResource
@@ -23,6 +25,13 @@ final class TaskProvider implements ProviderInterface
             return null;
         }
 
+        $this->projectAccessChecker->assertCanAccess($task->getProject());
+
+        return $this->toResource($task);
+    }
+
+    private function toResource($task): TaskResource
+    {
         $resource = new TaskResource();
         $resource->id = $task->getId();
         $resource->title = $task->getTitle();
