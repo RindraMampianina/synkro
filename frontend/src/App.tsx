@@ -1,3 +1,4 @@
+import { useEffect } from 'react';
 import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
 import LoginPage from './pages/LoginPage';
 import RegisterPage from './pages/RegisterPage';
@@ -10,6 +11,15 @@ function PrivateRoute({ children }: { children: React.ReactNode }) {
 }
 
 export default function App() {
+  const loadCurrentUser = useAuthStore((s) => s.loadCurrentUser);
+  const token = useAuthStore((s) => s.token);
+
+  useEffect(() => {
+    if (token) {
+      void loadCurrentUser();
+    }
+  }, [token, loadCurrentUser]);
+
   return (
     <BrowserRouter>
       <Routes>
