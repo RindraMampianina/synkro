@@ -7,13 +7,11 @@ services:
       - ./symfony:/var/www/html
     environment:
       DATABASE_URL: postgresql://app:app@postgres:5432/synkro
-      MESSENGER_TRANSPORT_DSN: amqp://guest:guest@rabbitmq:5672/%2f/messages
       MERCURE_URL: http://mercure:3000/.well-known/mercure
       MERCURE_PUBLIC_URL: http://localhost:3000/.well-known/mercure
       MERCURE_JWT_SECRET: 2e2ee9285741aba2cb55477b7e32519ae58328aa2e086b43657db346d83e0fb8
     depends_on:
       - postgres
-      - rabbitmq
 
   nginx:
     image: nginx:alpine
@@ -37,8 +35,10 @@ services:
     environment:
       - CHOKIDAR_USEPOLLING=true
       - VITE_MERCURE_PROXY_TARGET=http://mercure:3000
+      - VITE_API_URL=http://localhost:8080/api
     depends_on:
       - mercure
+      - nginx
 
   postgres:
     image: postgres:16-alpine
@@ -51,15 +51,6 @@ services:
     volumes:
       - postgres_data:/var/lib/postgresql/data
 
-  rabbitmq:
-    image: rabbitmq:3-management-alpine
-    ports:
-      - "5672:5672"
-      - "15672:15672"   # Dashboard web
-    environment:
-      RABBITMQ_DEFAULT_USER: guest
-      RABBITMQ_DEFAULT_PASS: guest
-
   mercure:
     image: dunglas/mercure
     ports:
@@ -68,6 +59,7 @@ services:
       SERVER_NAME: ':3000'
       MERCURE_PUBLISHER_JWT_KEY: 2e2ee9285741aba2cb55477b7e32519ae58328aa2e086b43657db346d83e0fb8
       MERCURE_SUBSCRIBER_JWT_KEY: 2e2ee9285741aba2cb55477b7e32519ae58328aa2e086b43657db346d83e0fb8
+      # Anonyme OK pour la démo locale ; à restreindre en prod (JWT subscriber)
       MERCURE_EXTRA_DIRECTIVES: |
         anonymous 1
         cors_origins http://localhost:5173
