@@ -1,3 +1,55 @@
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
+
+@layer base {
+  html {
+    @apply antialiased;
+  }
+
+  body {
+    @apply bg-mist text-ink font-sans;
+  }
+
+  ::selection {
+    @apply bg-accent-100 text-ink;
+  }
+}
+
+@layer components {
+  .auth-grid {
+    background-image:
+      linear-gradient(rgba(255, 255, 255, 0.04) 1px, transparent 1px),
+      linear-gradient(90deg, rgba(255, 255, 255, 0.04) 1px, transparent 1px);
+    background-size: 48px 48px;
+  }
+
+  .input-field {
+    @apply w-full rounded-lg border border-mist-deep bg-white px-3.5 py-2.5 text-sm text-ink
+      placeholder:text-ink-muted/50
+      focus:border-accent-500 focus:outline-none focus:ring-2 focus:ring-accent-500/20
+      transition-shadow;
+  }
+
+  .btn-primary {
+    @apply inline-flex items-center justify-center gap-2 rounded-lg bg-accent-700 px-4 py-2.5
+      text-sm font-medium text-white
+      hover:bg-accent-800 active:bg-accent-800
+      disabled:opacity-50 disabled:pointer-events-none
+      transition-colors;
+  }
+
+  .btn-ghost {
+    @apply inline-flex items-center justify-center gap-2 rounded-lg px-3 py-2
+      text-sm font-medium text-ink-muted
+      hover:bg-mist-deep hover:text-ink
+      transition-colors;
+  }
+
+  .btn-secondary {
+    @apply inline-flex items-center justify-center gap-2 rounded-lg border border-mist-deep
+      bg-white px-3.5 py-2 text-sm font-medium text-ink
+      hover:border-accent-500/40 hover:bg-accent-50
+      transition-colors;
+  }
+}

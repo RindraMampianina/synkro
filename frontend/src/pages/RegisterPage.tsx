@@ -1,5 +1,7 @@
 import { useState } from 'react';
-import { useNavigate, Link } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
+import { AlertCircle, ArrowRight, Loader2 } from 'lucide-react';
+import AuthShell from '../components/AuthShell';
 import useAuthStore from '../stores/authStore';
 
 export default function RegisterPage() {
@@ -26,77 +28,85 @@ export default function RegisterPage() {
   };
 
   return (
-    <div className="min-h-screen bg-gray-50 flex items-center justify-center">
-      <div className="bg-white p-8 rounded-xl shadow-sm w-full max-w-md">
-        <h1 className="text-2xl font-bold text-gray-900 mb-2">Synkro</h1>
-        <p className="text-gray-500 mb-6">Crée ton compte</p>
+    <AuthShell title="Créer un compte" subtitle="Quelques infos pour démarrer avec Synkro.">
+      {error && (
+        <div className="mb-5 flex items-start gap-2.5 rounded-lg border border-danger-text/15 bg-danger-soft px-3.5 py-3 text-sm text-danger-text">
+          <AlertCircle className="mt-0.5 h-4 w-4 shrink-0" strokeWidth={2} />
+          <span>{error}</span>
+        </div>
+      )}
 
-        {error && (
-          <div className="bg-red-50 text-red-600 px-4 py-3 rounded-lg mb-4 text-sm">
-            {error}
-          </div>
-        )}
+      <form onSubmit={handleSubmit} className="space-y-4">
+        <div>
+          <label htmlFor="fullName" className="mb-1.5 block text-sm font-medium text-ink">
+            Nom complet
+          </label>
+          <input
+            id="fullName"
+            type="text"
+            value={fullName}
+            onChange={(e) => setFullName(e.target.value)}
+            className="input-field"
+            placeholder="Rindra Mampianina"
+            autoComplete="name"
+            required
+          />
+        </div>
 
-        <form onSubmit={handleSubmit} className="space-y-4">
-          <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1">
-              Nom complet
-            </label>
-            <input
-              type="text"
-              value={fullName}
-              onChange={(e) => setFullName(e.target.value)}
-              className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-primary-500"
-              placeholder="Rindra Mampianina"
-              required
-            />
-          </div>
+        <div>
+          <label htmlFor="email" className="mb-1.5 block text-sm font-medium text-ink">
+            Email
+          </label>
+          <input
+            id="email"
+            type="email"
+            value={email}
+            onChange={(e) => setEmail(e.target.value)}
+            className="input-field"
+            placeholder="rindra@synkro.com"
+            autoComplete="email"
+            required
+          />
+        </div>
 
-          <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1">
-              Email
-            </label>
-            <input
-              type="email"
-              value={email}
-              onChange={(e) => setEmail(e.target.value)}
-              className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-primary-500"
-              placeholder="rindra@synkro.com"
-              required
-            />
-          </div>
+        <div>
+          <label htmlFor="password" className="mb-1.5 block text-sm font-medium text-ink">
+            Mot de passe
+          </label>
+          <input
+            id="password"
+            type="password"
+            value={plainPassword}
+            onChange={(e) => setPlainPassword(e.target.value)}
+            className="input-field"
+            placeholder="8 caractères minimum"
+            autoComplete="new-password"
+            minLength={8}
+            required
+          />
+        </div>
 
-          <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1">
-              Mot de passe
-            </label>
-            <input
-              type="password"
-              value={plainPassword}
-              onChange={(e) => setPlainPassword(e.target.value)}
-              className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-primary-500"
-              placeholder="••••••••"
-              minLength={8}
-              required
-            />
-          </div>
+        <button type="submit" disabled={loading} className="btn-primary w-full mt-2">
+          {loading ? (
+            <>
+              <Loader2 className="h-4 w-4 animate-spin" />
+              Création…
+            </>
+          ) : (
+            <>
+              Créer mon compte
+              <ArrowRight className="h-4 w-4" />
+            </>
+          )}
+        </button>
+      </form>
 
-          <button
-            type="submit"
-            disabled={loading}
-            className="w-full bg-primary-600 text-white py-2 rounded-lg text-sm font-medium hover:bg-primary-700 disabled:opacity-50 transition-colors"
-          >
-            {loading ? 'Création...' : 'Créer mon compte'}
-          </button>
-        </form>
-
-        <p className="text-center text-sm text-gray-500 mt-4">
-          Déjà un compte ?{' '}
-          <Link to="/login" className="text-primary-600 hover:underline">
-            Se connecter
-          </Link>
-        </p>
-      </div>
-    </div>
+      <p className="mt-6 text-center text-sm text-ink-muted">
+        Déjà un compte ?{' '}
+        <Link to="/login" className="font-medium text-accent-700 hover:text-accent-800">
+          Se connecter
+        </Link>
+      </p>
+    </AuthShell>
   );
 }
