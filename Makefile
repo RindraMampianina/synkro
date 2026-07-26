@@ -1,4 +1,4 @@
-.PHONY: help start stop restart build install db jwt cache logs shell test migration db-reset
+.PHONY: help start stop restart build install db jwt cache logs shell test test-backend test-frontend migration db-reset
 
 help: ## Affiche cette aide
 	@grep -E '^[a-zA-Z_-]+:.*?## .*$$' $(MAKEFILE_LIST) | awk 'BEGIN {FS = ":.*?## "}; {printf "\033[36m%-20s\033[0m %s\n", $$1, $$2}'
@@ -52,5 +52,10 @@ logs: ## Affiche les logs en temps réel
 shell: ## Ouvre un shell dans le container PHP
 	docker compose exec php sh
 
-test: ## Lance les tests
+test: test-backend test-frontend ## Lance tous les tests
+
+test-backend: ## Lance les tests PHPUnit
 	docker compose exec php php bin/phpunit
+
+test-frontend: ## Lance les tests Vitest
+	cd frontend && npm run test:run

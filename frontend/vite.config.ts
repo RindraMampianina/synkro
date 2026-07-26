@@ -20,5 +20,9 @@ export default defineConfig({
     environment: 'jsdom',
     setupFiles: './src/test/setup.ts',
     css: false,
+    // forks is flaky on GitHub Actions runners (worker startup timeouts)
+    pool: 'threads',
+    fileParallelism: !process.env.CI,
+    maxWorkers: process.env.CI ? 2 : undefined,
   },
 })
